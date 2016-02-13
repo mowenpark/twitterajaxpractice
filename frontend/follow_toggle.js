@@ -11,10 +11,14 @@ var FollowToggle = function($el){
 };
 
 FollowToggle.prototype.render = function () {
-  if (this.followState === false) {
+  if (this.followState === 'following' || this.followState === 'unfollowing') {
+    this.$el.prop( "disabled", true );
+  } else if (this.followState === false) {
     this.$el.text("Follow!");
+    this.$el.prop( "disabled", false );
   } else {
     this.$el.text("Unfollow!");
+    this.$el.prop( "disabled", false );
   }
 };
 
@@ -22,6 +26,8 @@ FollowToggle.prototype.handleClick = function (e) {
   e.preventDefault();
 
   if (this.followState === false) {
+    this.followState = "following";
+    this.render();
     $.ajax({
         url: "/users/" + this.userId + "/follow",
         type: "POST",
@@ -34,6 +40,8 @@ FollowToggle.prototype.handleClick = function (e) {
         }.bind(this)
       });
     } else {
+      this.followState = "unfollowing";
+      this.render();
       $.ajax({
           url: "/users/" + this.userId + "/follow",
           type: "DELETE",
@@ -41,7 +49,7 @@ FollowToggle.prototype.handleClick = function (e) {
           data: { followState: false },
           success: function(resp){
             this.followState = false;
-            this.$el.data('follow-state', false); 
+            this.$el.data('follow-state', false);
             this.render();
           }.bind(this)
         });
